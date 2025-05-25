@@ -4,7 +4,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,4 +18,21 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav-link {
+  @apply px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition-all;
+}
+
+.nav-link.active {
+  @apply text-primary bg-blue-50 font-medium;
+}
+
+.mobile-menu-backdrop {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+}
+
+.search-bar {
+  @apply bg-gray-100 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
 }
