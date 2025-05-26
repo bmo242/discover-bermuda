@@ -1,3 +1,5 @@
+'use client';
+
 import { withRoleProtection } from "@/components/auth/withRoleProtection";
 
 function LocationsPage() {
