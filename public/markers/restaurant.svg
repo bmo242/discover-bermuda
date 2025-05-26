@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="14" fill="#EF4444"/>
+  
+  <!-- Fork and knife icon -->
+  <path d="M12 10V22M20 10V22M16 10V13M16 16V22M16 13C16 14.6569 17.3431 16 19 16C20.6569 16 22 14.6569 22 13V10" 
+    stroke="white" 
+    stroke-width="2" 
+    stroke-linecap="round"/>
+</svg> 

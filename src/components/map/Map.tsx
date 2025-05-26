@@ -1,7 +1,20 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from '@react-google-maps/api';
+
+interface Location {
+  id: string;
+  name: string;
+  description: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  images: string[];
+  category: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const containerStyle = {
   width: '100%',
@@ -39,6 +52,29 @@ export default function Map() {
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchLocations = async () => {
+    try {
+      const response = await fetch('/api/locations');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch locations');
+      }
+
+      setLocations(data.locations);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load locations');
+      console.error('Error fetching locations:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     // Set bounds to cover all of Bermuda
@@ -80,10 +116,44 @@ export default function Map() {
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={center}
-      zoom={11} // Default zoom level if bounds don't work
+      zoom={11}
       onLoad={onLoad}
       onUnmount={onUnmount}
       options={options}
-    />
+    >
+      {locations.map((location) => (
+        <MarkerF
+          key={location.id}
+          position={{ lat: location.latitude, lng: location.longitude }}
+          onClick={() => setSelectedLocation(location)}
+          icon={{
+            url: `/markers/${location.category.toLowerCase()}.svg`,
+            scaledSize: new window.google.maps.Size(32, 32)
+          }}
+        />
+      ))}
+
+      {selectedLocation && (
+        <InfoWindowF
+          position={{ lat: selectedLocation.latitude, lng: selectedLocation.longitude }}
+          onCloseClick={() => setSelectedLocation(null)}
+        >
+          <div className="max-w-xs">
+            <h3 className="text-lg font-semibold mb-1">{selectedLocation.name}</h3>
+            {selectedLocation.images.length > 0 && (
+              <div className="relative h-32 w-full mb-2">
+                <img
+                  src={selectedLocation.images[0]}
+                  alt={selectedLocation.name}
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+            )}
+            <p className="text-sm text-gray-600 mb-2">{selectedLocation.description}</p>
+            <p className="text-xs text-gray-500">{selectedLocation.address}</p>
+          </div>
+        </InfoWindowF>
+      )}
+    </GoogleMap>
   );
 } 

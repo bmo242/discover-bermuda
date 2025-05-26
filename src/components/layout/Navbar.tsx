@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { cn } from '../../lib/utils';
+import { useSession, signOut } from 'next-auth/react';
 
 const categories = [
   { name: 'All', href: '/', icon: 'grid' },
@@ -18,6 +19,7 @@ const categories = [
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const currentCategory = searchParams.get('category') || '';
 
@@ -54,13 +56,48 @@ export default function Navbar() {
             </Link>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <Link
-            href="/login"
-            className="text-sm font-semibold leading-6 text-primary hover:text-primary-hover transition-colors"
-          >
-            Log in <span aria-hidden="true">&rarr;</span>
-          </Link>
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+          {status === 'loading' ? (
+            <div className="h-6 w-20 bg-gray-200 animate-pulse rounded"></div>
+          ) : session ? (
+            <>
+              {session.user?.role === 'ADMIN' && (
+                <Link
+                  href="/admin"
+                  className="text-sm font-semibold leading-6 text-primary hover:text-primary-hover transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
+              <Link
+                href="/profile"
+                className="text-sm font-semibold leading-6 text-primary hover:text-primary-hover transition-colors"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="text-sm font-semibold leading-6 text-primary hover:text-primary-hover transition-colors"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-semibold leading-6 text-primary hover:text-primary-hover transition-colors"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="text-sm font-semibold leading-6 text-white bg-primary hover:bg-primary-hover px-4 py-2 rounded-md transition-colors"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
       {/* Mobile menu */}
@@ -113,14 +150,55 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
-              <div className="py-6">
-                <Link
-                  href="/login"
-                  className="flex w-full items-center rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-primary hover:bg-gray-50 hover:text-primary-hover transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Log in
-                </Link>
+              <div className="py-6 space-y-2">
+                {status === 'loading' ? (
+                  <div className="h-10 bg-gray-200 animate-pulse rounded"></div>
+                ) : session ? (
+                  <>
+                    {session.user?.role === 'ADMIN' && (
+                      <Link
+                        href="/admin"
+                        className="flex w-full items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-primary hover:bg-gray-50"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Admin
+                      </Link>
+                    )}
+                    <Link
+                      href="/profile"
+                      className="flex w-full items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-primary hover:bg-gray-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex w-full items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-primary hover:bg-gray-50"
+                    >
+                      Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="flex w-full items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-primary hover:bg-gray-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Log in
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="flex w-full items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white bg-primary hover:bg-primary-hover"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
