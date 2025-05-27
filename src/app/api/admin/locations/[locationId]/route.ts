@@ -3,8 +3,10 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 
+export const dynamic = 'force-dynamic';
+
 export async function PUT(
-  request: NextRequest,
+  req: Request,
   { params }: { params: { locationId: string } }
 ) {
   try {
@@ -18,7 +20,7 @@ export async function PUT(
     }
 
     const { locationId } = params;
-    const data = await request.json();
+    const data = await req.json();
     const { name, description, address, latitude, longitude, images } = data;
 
     // Validate required fields
@@ -60,7 +62,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  req: Request,
   { params }: { params: { locationId: string } }
 ) {
   try {

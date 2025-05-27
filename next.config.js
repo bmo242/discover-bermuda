@@ -7,8 +7,12 @@ const nextConfig = {
         // Option to enable client-side hooks in server components
         "no-client-hooks": false
       }
-    }
-  }
+    },
+    serverActions: true,
+  },
+  images: {
+    domains: ['res.cloudinary.com'],
+  },
 };
 
 module.exports = nextConfig;
