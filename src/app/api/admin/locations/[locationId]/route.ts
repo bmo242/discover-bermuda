@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 
 export async function PUT(
-  req: NextRequest,
-  { params }: { params: { locationId: string } }
+  request: NextRequest,
+  context: { params: { locationId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,8 +17,8 @@ export async function PUT(
       );
     }
 
-    const { locationId } = params;
-    const data = await req.json();
+    const { locationId } = context.params;
+    const data = await request.json();
     const { name, description, address, latitude, longitude, images } = data;
 
     // Validate required fields
@@ -60,8 +60,8 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { locationId: string } }
+  request: NextRequest,
+  context: { params: { locationId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -73,7 +73,7 @@ export async function DELETE(
       );
     }
 
-    const { locationId } = params;
+    const { locationId } = context.params;
 
     await prisma.location.delete({
       where: { id: locationId }
