@@ -3,9 +3,15 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 
+type RouteContext = {
+  params: {
+    locationId: string;
+  };
+};
+
 export async function PUT(
   request: NextRequest,
-  context: { params: { locationId: string } }
+  { params }: RouteContext
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +23,7 @@ export async function PUT(
       );
     }
 
-    const { locationId } = context.params;
+    const { locationId } = params;
     const data = await request.json();
     const { name, description, address, latitude, longitude, images } = data;
 
@@ -61,7 +67,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { locationId: string } }
+  { params }: RouteContext
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -73,7 +79,7 @@ export async function DELETE(
       );
     }
 
-    const { locationId } = context.params;
+    const { locationId } = params;
 
     await prisma.location.delete({
       where: { id: locationId }
