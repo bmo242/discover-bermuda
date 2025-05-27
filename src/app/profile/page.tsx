@@ -1,11 +1,11 @@
 'use client';
 
-import { withRoleProtection } from "@/components/auth/withRoleProtection";
+import ProtectedWrapper from "@/components/auth/ProtectedWrapper";
 import { useSession } from "next-auth/react";
 import { useState, useRef } from "react";
 import Image from "next/image";
 
-function ProfilePage() {
+export default function ProfilePage() {
   const { data: session, update: updateSession } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(session?.user?.name || '');
@@ -104,143 +104,143 @@ function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12">
-      <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-              <button
-                onClick={() => {
-                  setIsEditing(!isEditing);
-                  setError('');
-                  setSuccessMessage('');
-                  if (!isEditing) {
-                    setName(session?.user?.name || '');
-                    setImagePreview(session?.user?.image || '');
-                  }
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                disabled={isLoading}
-              >
-                {isEditing ? 'Cancel' : 'Edit Profile'}
-              </button>
-            </div>
-
-            {error && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-600">{error}</p>
-              </div>
-            )}
-
-            {successMessage && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-green-600">{successMessage}</p>
-              </div>
-            )}
-
-            <div className="space-y-6">
-              <div className="flex flex-col items-center">
-                <div className="relative group">
-                  <div className="relative h-32 w-32 rounded-full overflow-hidden bg-gray-100">
-                    {imagePreview ? (
-                      <Image
-                        src={imagePreview}
-                        alt="Profile"
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gray-200">
-                        <span className="text-4xl text-gray-500">
-                          {session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {isEditing && (
-                    <>
-                      <div
-                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <span className="text-white text-sm">Change Photo</span>
-                      </div>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        disabled={isLoading}
-                      />
-                    </>
-                  )}
-                </div>
+    <ProtectedWrapper allowedRoles={["USER", "ADMIN"]}>
+      <div className="min-h-screen bg-gray-100 py-12">
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+                <button
+                  onClick={() => {
+                    setIsEditing(!isEditing);
+                    setError('');
+                    setSuccessMessage('');
+                    if (!isEditing) {
+                      setName(session?.user?.name || '');
+                      setImagePreview(session?.user?.image || '');
+                    }
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  disabled={isLoading}
+                >
+                  {isEditing ? 'Cancel' : 'Edit Profile'}
+                </button>
               </div>
 
-              <div>
-                <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <div className="mt-1">
-                      <input
-                        type="email"
-                        disabled
-                        value={session?.user?.email || ''}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        disabled={!isEditing || isLoading}
-                        className={`block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
-                          isEditing && !isLoading ? 'bg-white' : 'bg-gray-50'
-                        }`}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Role</label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        disabled
-                        value={session?.user?.role || ''}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {isEditing && (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={(e) => handleSubmit(e)}
-                    disabled={isLoading}
-                    className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                  </button>
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-red-600">{error}</p>
                 </div>
               )}
+
+              {successMessage && (
+                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                  <p className="text-green-600">{successMessage}</p>
+                </div>
+              )}
+
+              <div className="space-y-6">
+                <div className="flex flex-col items-center">
+                  <div className="relative group">
+                    <div className="relative h-32 w-32 rounded-full overflow-hidden bg-gray-100">
+                      {imagePreview ? (
+                        <Image
+                          src={imagePreview}
+                          alt="Profile"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-gray-200">
+                          <span className="text-4xl text-gray-500">
+                            {session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {isEditing && (
+                      <>
+                        <div
+                          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <span className="text-white text-sm">Change Photo</span>
+                        </div>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          disabled={isLoading}
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Email</label>
+                      <div className="mt-1">
+                        <input
+                          type="email"
+                          disabled
+                          value={session?.user?.email || ''}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Name</label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          disabled={!isEditing || isLoading}
+                          className={`block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
+                            isEditing && !isLoading ? 'bg-white' : 'bg-gray-50'
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Role</label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          disabled
+                          value={session?.user?.role || ''}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {isEditing && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={(e) => handleSubmit(e)}
+                      disabled={isLoading}
+                      className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedWrapper>
   );
-}
-
-export default withRoleProtection(ProfilePage, ["USER", "ADMIN"]); 
+} 
