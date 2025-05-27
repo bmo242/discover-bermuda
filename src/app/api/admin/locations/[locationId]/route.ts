@@ -1,14 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 
 export const dynamic = 'force-dynamic';
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { locationId: string } }
-) {
+type Props = {
+  params: {
+    locationId: string;
+  };
+};
+
+export async function PUT(request: Request, props: Props) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -19,8 +22,8 @@ export async function PUT(
       );
     }
 
-    const { locationId } = params;
-    const data = await req.json();
+    const { locationId } = props.params;
+    const data = await request.json();
     const { name, description, address, latitude, longitude, images } = data;
 
     // Validate required fields
@@ -61,10 +64,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { locationId: string } }
-) {
+export async function DELETE(request: Request, props: Props) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -75,7 +75,7 @@ export async function DELETE(
       );
     }
 
-    const { locationId } = params;
+    const { locationId } = props.params;
 
     await prisma.location.delete({
       where: { id: locationId }

@@ -8,7 +8,9 @@ const nextConfig = {
         "no-client-hooks": false
       }
     },
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000']
+    }
   },
   images: {
     domains: ['res.cloudinary.com'],
